@@ -37,7 +37,7 @@ cd AIMsetfinder
 ```
 
 Install [dependencies](#installing-dependencies) and then run the test:
-`Rscript example_pipeline.r`
+`Rscript pipeline_example.r`
 
 ### Installing dependencies
 

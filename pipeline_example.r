@@ -143,5 +143,6 @@ if(step8) {
   names(classifications) = inds[,1]
   write.csv(predictions, file = "predictions.csv" )
   write.table(classifications, file = "classifications.tab", col.names = F )
+  cat("pipeline has finished. AIM set, predictions, and classifications have been generated.\n")
 }
 

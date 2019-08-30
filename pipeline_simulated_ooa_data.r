@@ -30,7 +30,7 @@ step8 = TRUE # Create classification and posterior probabilities
 
 
 if(simulate){
-  print("simulating SNP data for out of africa model -- this may take a while...")
+  print("simulating SNP data for out of africa model -- depending on your system this may take a while (several hours)...")
   globalcommand = "python3 code/simulate4biogeo.py ooa"
   commands = c()
   allseeds = seed
@@ -184,4 +184,5 @@ if(step8) {
   names(classifications) = inds[,1]
   write.csv(predictions, file = "predictions.csv" )
   write.table(classifications, file = "classifications.tab", col.names = F )
+  cat("pipeline has finished. AIM set, predictions, and classifications have been generated.\n")
 }

@@ -220,7 +220,7 @@ getfreqs.from.vcf<-function(filenameData, filenameInds, snplist=FALSE) {
 # Obtain the list of SNP identifiers from a file;
 
 getIdentifiers<-function(filenameDataVCFGZ) {
-  call = paste("zcat ", filenameDataVCFGZ, " | grep \"^[^#]\" | cut -f 3 > identifiers.out")
+  call = paste("gunzip -c ", filenameDataVCFGZ, " | grep \"^[^#]\" | cut -f 3 > identifiers.out")
   system(call)
   identifiers = read.table("identifiers.out", header=FALSE)
   system("rm identifiers.out")
@@ -229,7 +229,7 @@ getIdentifiers<-function(filenameDataVCFGZ) {
 
 # Obtains the number of segregating sites from a file; 
 getNss<-function(filenameDataVCFGZ) {
-  call = paste("zcat ", filenameDataVCFGZ, " | grep \"^[^#]\" | wc -l > nss.out")
+  call = paste("gunzip -c ", filenameDataVCFGZ, " | grep \"^[^#]\" | wc -l > nss.out")
   system(call)
   nss = read.table("nss.out")
   system("rm nss.out")

@@ -17,7 +17,9 @@ diploid = TRUE
 set.seed(seed)
 size = rep(testindsperdeme, demes) # size of the test set in all demes
 
-simulate = TRUE # Simulate datasets
+num_ch = 1
+
+simulate = FALSE # Simulate datasets
 prepare = TRUE # Make Training and Test sets
 step1 = TRUE # Get frequencies for all SNPs in all populations for the training set
 step2 = TRUE # Filter most informative SNPs and write a new vcf File
@@ -30,21 +32,23 @@ step8 = TRUE # Create classification and posterior probabilities
 
 
 if(simulate){
-  print("simulating SNP data for out of africa model -- depending on your system this may take a while (several hours)...")
+  print("simulating SNP data for out of africa model -- depending on your system this may take a while (several hours or days)...")
   globalcommand = "python3 code/simulate4biogeo.py ooa"
   commands = c()
   allseeds = seed
-  # to simulate all seeds used for the publication at once uncomment:
+  # # to simulate all seeds used for the publication at once uncomment:
   # allseeds = c(11,12,13,14,15,16,17,18,19,20)
+  # # to simulate all 20 chromosomes as used for the publication uncomment:
+  # num_ch = 20
   for(itseed in allseeds){
-    commands = c(commands,paste(globalcommand, itseed, 20,  sep= " "))
+    commands = c(commands,paste(globalcommand, itseed, num_ch,  sep= " "))
   }
   exec<-function(commandline){
     system(commandline)
   }
   library(parallel)
   mclapply(commands,exec)
-  for(itseed in seeds){
+  for(itseed in allseeds){
     command = paste("mv ooa_chromosome_*_seed_",itseed,".vcf.gz data/sim/ooa/tmp/.",sep="")
     system(command)
   }
@@ -57,7 +61,7 @@ filenameIndsTraining = "training_ooa_SampleListWithLocations.txt"
 filenameIndsTest = "test_ooa_SampleListWithLocations.txt"
 
 filenameData = NULL
-for(i in 1:20) {
+for(i in 1:num_ch) {
   filenameData = c(filenameData, paste("data/sim/ooa/tmp/ooa_chromosome_", i, "_seed_", seed, sep=""))
 }
 
@@ -72,7 +76,7 @@ if(prepare) {
 # load frequencies in all pops into R
 
 if(step1) {   # Get frequencies in all superpopulations
-  for(i in 20:1) {
+  for(i in num_ch:1) {
     getfreqs.from.vcf(filenameData[i], filenameIndsTraining, snplist=FALSE) 
   }
   # mclapply(filenameData,FUN = function(x){getfreqs.from.vcf(x,filenameIndsTraining,snplist = FALSE)})  # this does not work yet
@@ -82,7 +86,7 @@ if(step1) {   # Get frequencies in all superpopulations
 
 if(step2) {
   #  source("../biogeoanc-prediction/util.r")
-  for(i in 20:1) {
+  for(i in num_ch:1) {
     load(paste(filenameData[i], "_freqs", sep=""))
     info = informativeness.global(freqs)
     nss = ncol(freqs)
@@ -108,7 +112,7 @@ if(step2) {
 
 if(step3) {
   filenames = NULL
-  for(i in 1:20) {
+  for(i in 1:num_ch) {
     filenames = c(filenames, paste("tmp/chr", i, "_seed_", seed, "_informative.recode.vcf.gz", sep=""))
   }
   cut.VCF(filenames, stepsize, removeUnnamed = TRUE)
@@ -118,7 +122,7 @@ if(step3) {
 
 if(step4) {
   nss = NULL
-  for(i in 1:20) {
+  for(i in 1:num_ch) {
     nss = c(nss, getNss(paste("tmp/chr", i, "_seed_", seed, "_informative.recode.vcf.gz", sep="")))
   }
   write.table(nss, file = paste("nss_seed_", seed, sep=""), quote=FALSE, col.names=FALSE, row.names=FALSE)
@@ -132,7 +136,7 @@ if(step5) {
   nss = read.table(paste("nss_seed_", seed, sep=""))[,1]
   
   filenames = NULL
-  for(i in 1:20) {
+  for(i in 1:num_ch) {
     for(j in 0:((nss[i]-1)/stepsize)) {
       filenames = c(filenames, paste("tmp/chr", i, "_segment", j, ".recode.vcf.gz", sep=""))
     }
@@ -151,7 +155,7 @@ if(step6) {
   nss = read.table(paste("nss_seed_", seed, sep=""))[,1]
   
   filenames = NULL
-  for(i in 1:20) {
+  for(i in 1:num_ch) {
     for(j in 0:((nss[i]-1)/stepsize)) {
       filenames = c(filenames, paste("tmp/chr", i, "_segment", j, ".recode.vcf.gz.rds", sep=""))
     }
@@ -163,7 +167,7 @@ if(step6) {
 # We create a vcf.gz File for all SNPs from step6; this is called AIMs.vcf.gz
 if(step7) {
   filenameDataVCFGZ = filenameData
-  for(i in 1:20) filenameDataVCFGZ[i] = paste(filenameData[i], ".vcf.gz", sep="")
+  for(i in 1:num_ch) filenameDataVCFGZ[i] = paste(filenameData[i], ".vcf.gz", sep="")
   extract.and.merge(filenameDataVCFGZ, "AIMs", outfile="AIMs.vcf")
   system("gzip -f AIMs.vcf")
 }

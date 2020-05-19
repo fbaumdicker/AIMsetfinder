@@ -293,7 +293,7 @@ log.prediction.naiveBayes<-function(sample.test, freqs.training, samplesInDeme.t
     # This is an implementation of formula (1)	 in the main text
     res[,k] = apply(as.matrix(log((1 + t(counts)[,k])) * t(sample.test) + log((1+diploid) * samplesInDeme.training[k] - t(counts)[,k]+1)*(1 + diploid -t(sample.test))), 2, sum)
     # res[,k] = apply(as.matrix(log((1 + t(counts)[,k]) * t(sample.test) +
-    	    ((1+diploid) * samplesInDeme.training[k] - t(counts)[,k]+1)*(1 + diploid -t(sample.test)))), 2, sum)
+    #	    ((1+diploid) * samplesInDeme.training[k] - t(counts)[,k]+1)*(1 + diploid -t(sample.test)))), 2, sum)
   }
   res 
 }
